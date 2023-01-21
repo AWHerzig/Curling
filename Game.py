@@ -4,7 +4,7 @@ from Linked_List_Curling import *
 from Spot import *
 
 
-def game(h, a, ends=10, stones=8, p=1):  # Home, Away, Game Length, End Length, Print Value
+def game(h, a, ends=10, stones=4, p=.5):  # Home, Away, Game Length, End Length, Print Value
     h.color = 'Blue'  # Home team is Blue, Away is Red
     a.color = 'Red'
     hammer = h  # Giving first hammer to home team for home field advantage
@@ -15,7 +15,8 @@ def game(h, a, ends=10, stones=8, p=1):  # Home, Away, Game Length, End Length, 
     endNum = 1
     while endNum <= ends or hScore.sum() == aScore.sum():  # If still tied, go to extra ends.
         endCount.append_element(endNum)  # adds column to scoreboard
-        print('END', endNum)
+        if p > 1:
+            print('END', endNum)
         res = end(hammer, lead, stones, p)  # The end is actually played with this function call.
         if res[0] == 'Blue':  # If Blue Scored
             hScore.append_element(res[1])
@@ -32,12 +33,26 @@ def game(h, a, ends=10, stones=8, p=1):  # Home, Away, Game Length, End Length, 
             aScore.append_element(0)
         endNum += 1
     endCount.append_element('T')
-    hScore.append_element(hScore.sum())  # Final Scores
-    aScore.append_element(aScore.sum())
+    hFinal = hScore.sum()
+    aFinal = aScore.sum()
+    hScore.append_element(hFinal)  # Final Scores
+    aScore.append_element(aFinal)
     if p >= 1:  # Prints the scoreboard
         print('Team Name '+str(endCount))
         print(h.name, hScore)
         print(a.name, aScore)
+    if p > 0 < 1:
+        print(h.ABR, hFinal, aFinal, a.ABR)
+    h.played += 1
+    a.played += 1
+    h.pD += hFinal
+    h.pD -= aFinal
+    a.pD += aFinal
+    a.pD -= hFinal
+    if hFinal > aFinal:
+        h.wins += 1
+    else:
+        a.wins += 1
 
 
 def end(hammer, lead, stones, p):  # Hammer Color, Lead Color, Stones per team Print value

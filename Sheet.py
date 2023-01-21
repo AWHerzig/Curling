@@ -268,7 +268,8 @@ class Sheet:  # This will store what happens on the sheet in any end
                 #print(i.ID, i.depth, i.width)
                 self.movers.remove(i)
             if i.depth > 135 or i.width < -10 or i.width > 10:  # If it's gone out of bounds
-                self.movers.remove(i)
+                if i in self.movers:
+                    self.movers.remove(i)
                 self.stones.remove(i)
         if len(self.movers) == 0:  # If nothing is still moving
             for i in self.stones:
