@@ -217,54 +217,66 @@ class League:
                 #y = y % 29
                 for z in schedule[y]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 5]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 10]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 15]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 20]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 25]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 30]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
                 for z in schedule[y + 35]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[0], z[1])
+                        game(z[0], z[1], ends=6)
             for y in range(5):
                 print('Round ' + str(y + 6))
                 for z in schedule[y]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 5]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 10]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 15]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 20]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 25]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 30]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
                 for z in schedule[y + 35]:
                     if z[0] is not None and z[1] is not None:
-                        game(z[1], z[0])
+                        game(z[1], z[0], ends=6)
+
+    def stage1playoffs(self, teams):
+        random.shuffle(teams)
+        self.bracket(teams)
+        Q1 = game(teams[0], teams[1], p=1, playoff=True, neutral=True)
+        Q2 = game(teams[2], teams[3], p=1, playoff=True, neutral=True)
+        Q3 = game(teams[4], teams[5], p=1, playoff=True, neutral=True)
+        Q4 = game(teams[6], teams[7], p=1, playoff=True, neutral=True)
+        S1 = game(Q1, Q2, p=1, playoff=True, neutral=True)
+        S2 = game(Q3, Q4, p=1, playoff=True, neutral=True)
+        F = game(S1, S2, p=1, playoff=True, neutral=True)
+        print(F, 'wins the stage 1 playoffs!')
 
     def standings(self):
         self.tableRefresh()
@@ -272,8 +284,26 @@ class League:
             i.sort_values(by=['Wins', 'PD'], ascending=False, inplace=True)
             print(i)
 
+    def bracket(self, teams):
+        print()
+        print(teams[0].ABR+'|')
+        print('   |___')
+        print(teams[1].ABR+'|    |')
+        print('        |___')
+        print(teams[2].ABR+'|    |   |')
+        print('   |____|   |')
+        print(teams[3].ABR+'|        |')
+        print('            |___')
+        print(teams[4].ABR+'|        |')
+        print('   |____    |')
+        print(teams[5].ABR+'|    |   |')
+        print('        |___|')
+        print(teams[6].ABR+'|    |')
+        print('   |____|')
+        print(teams[7].ABR+'|')
+
 
 NCL = League()
 NCL.stage1()
 NCL.standings()
-print(NCL.NA['Team'][0], NCL.SA['Team'][0], NCL.WE['Team'][0], NCL.EE['Team'][0], NCL.AF['Team'][0], NCL.OC['Team'][0], NCL.WA['Team'][0], NCL.EA['Team'][0])
+NCL.stage1playoffs([NCL.NA['Team'].iloc[0], NCL.SA['Team'].iloc[0], NCL.WE['Team'].iloc[0], NCL.EE['Team'].iloc[0], NCL.AF['Team'].iloc[0], NCL.OC['Team'].iloc[0], NCL.WA['Team'].iloc[0], NCL.EA['Team'].iloc[0]])

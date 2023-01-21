@@ -51,6 +51,7 @@ class Team:
         self.color = None  # Will be 'Blue' or 'Red' assigned at each game
         # Numbers stuffs
         self.wins = 0
+        self.tWins = 0      
         self.played = 0
         self.pD = 0
 
