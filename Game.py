@@ -3,12 +3,7 @@ from Sheet import *
 from Linked_List_Curling import *
 from Spot import *
 
-# Define values here so they can be adjusted everywhere in the code at once
-split = .01  # in seconds, how often the movement updates
-gravForce = 32.2  # g in feet
-coefFriction = .02  # Frictional Coefficient
-decel = gravForce * coefFriction * split  # how much v goes down every split
-sweepMag = 0.1  # Adjustable multiplier for the magnitude of sweeping force
+
 
 
 

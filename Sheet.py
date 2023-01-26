@@ -2,14 +2,8 @@ import math  # This file is where the shit gets real
 import numpy
 import random
 import names
-from Spot import targetReq, landing
+from Spot import *
 
-# Define values here so they can be adjusted everywhere in the code at once
-split = .01  # in seconds, how often the movement updates
-gravForce = 32.2  # g in feet
-coefFriction = .02  # Frictional Coefficient
-decel = gravForce * coefFriction * split  # how much v goes down every split
-sweepMag = 0.1  # Adjustable multiplier for the magnitude of sweeping force
 
 
 def pythag(x, y):  # It's just nice to have
@@ -132,11 +126,11 @@ class Sheet:  # This will store what happens on the sheet in any end
         if odds2 < .3*((shooter.xAcc - 5)**3) + 50:  # See if they missed in the y-direction
             vY += numpy.random.normal(0, 3)
         rock = self.Stone(color, vY, vX, target)  # Build the stone, toiling for days mining the mountains of Alisa Craig, Scotland, for only the finest granite. Polishing it until it shines brighter than a city at night. Ship it across the world, into whatever computer this runs on, and get it in position to be shot.
-        for i in range(10, 90, 20):
-            whoop = rock.jump(i)
-            if not whoop:
-                return
-            self.sweepOp(rock, skip, sweep1, sweep2)
+        #for i in range(10, 90, 20):
+         #   whoop = rock.jump(i)
+          #  if not whoop:
+           #     return
+            #self.sweepOp(rock, skip, sweep1, sweep2)
         whoop2 = rock.jump(104.5)  # didn't have a good variable name, saves time by skipping up to the hog line
         if not whoop2:
             return
@@ -273,7 +267,8 @@ class Sheet:  # This will store what happens on the sheet in any end
                 #print(i.ID, i.depth, i.width)
                 self.movers.remove(i)
             if i.depth > 135 or i.width < -10 or i.width > 10:  # If it's gone out of bounds
-                self.movers.remove(i)
+                if i in self.movers:
+                    self.movers.remove(i)
                 self.stones.remove(i)
         if len(self.movers) == 0:  # If nothing is still moving
             for i in self.stones:
