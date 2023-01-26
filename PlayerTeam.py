@@ -19,16 +19,21 @@ class Player:  # Just as there are int objects and string objects, we make our o
                     return int(input('Depth: '+str(round(spotFinal[0], 1))+', Width: '+str(round(spotFinal[1], 1))+'. 0 for nothing, 1 for '+side+' x, 2 for increase y, 3 for lil o both'))
                 except ValueError:  # If they mess up the input (like just hitting enter), the whole code would break stopping all progress
                     return 0  # so just say don't sweep instead
-            else:
-                rando = random.randrange(100)  # I really don't know where to go with this decision making
-                if rando < 25:
-                    return 0  # Don't Sweep
-                elif rando < 50:
-                    return 1  # Sweep it to the side
-                elif rando < 75:
-                    return 2  # Sweep ahead to speed up
+            else:  # I try
+                upSweep = rock.target[0] > spotFinal[0]
+                if side == 'increase':
+                    sideSweep = rock.target[1] > spotFinal[1]
                 else:
+                    sideSweep = rock.target[1] < spotFinal[1]
+                if upSweep and sideSweep:
                     return 3  # Lil o both
+                elif upSweep:
+                    return 2  # Sweep ahead to speed up
+                elif sideSweep:
+                    return 1  # Sweep it to the side
+                else:
+                    return 0
+
         else:  # Blind
             if self.controlled:
                 try:
@@ -51,9 +56,10 @@ class Team:
         self.color = None  # Will be 'Blue' or 'Red' assigned at each game
         # Numbers stuffs
         self.wins = 0
-        self.tWins = 0      
+        self.tWins = 0
         self.played = 0
         self.pD = 0
+        self.tPD = 0
 
     def __str__(self):
         return self.name

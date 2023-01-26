@@ -3,6 +3,14 @@ from Sheet import *
 from Linked_List_Curling import *
 from Spot import *
 
+# Define values here so they can be adjusted everywhere in the code at once
+split = .01  # in seconds, how often the movement updates
+gravForce = 32.2  # g in feet
+coefFriction = .02  # Frictional Coefficient
+decel = gravForce * coefFriction * split  # how much v goes down every split
+sweepMag = 0.1  # Adjustable multiplier for the magnitude of sweeping force
+
+
 
 def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, Away, Game Length, End Length, Print Value
     h.color = 'Blue'  # Home team is Blue, Away is Red
@@ -17,6 +25,7 @@ def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, 
     else:
         hammer = h  # Giving first hammer to home team for home field advantage
         lead = a
+    firstHammer = hammer
     hScore = Linked_List()  # These three are for the scoreboard, if you run it and look at the scoreboard itll make more sense
     aScore = Linked_List()
     endCount = Linked_List()
@@ -46,6 +55,7 @@ def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, 
     hScore.append_element(hFinal)  # Final Scores
     aScore.append_element(aFinal)
     if p >= 1:  # Prints the scoreboard
+        print(firstHammer.ABR, 'has the first hammer')
         print('Team Name    '+str(endCount))
         print(h.name, hScore)
         print(a.name, aScore)
@@ -63,10 +73,16 @@ def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, 
         h.pD -= aFinal
         a.pD += aFinal
         a.pD -= hFinal
+        h.tPD += hFinal
+        h.tPD -= aFinal
+        a.tPD += aFinal
+        a.tPD -= hFinal
         if hFinal > aFinal:
             h.wins += 1
+            h.tWins += 1
         else:
             a.wins += 1
+            a.tWins += 1
 
 
 def end(hammer, lead, stones, p):  # Hammer Color, Lead Color, Stones per team Print value
@@ -96,12 +112,12 @@ def end(hammer, lead, stones, p):  # Hammer Color, Lead Color, Stones per team P
         if shooter.controlled:  # User input for their players shot, in v2 they put in a Y and X Velocity
             # I am going to build in an option to use Depth and Width inputs and convert using the targetReq() function
             sheet.output()  # Lets the user see what's up so they can decide where to shoot
-            cVeloY = float(input('Y Velocity:'))
-            cVeloX = float(input('X Velocity:'))
-            target = [cVeloY, cVeloX]
+            xTar = float(input('Y Target:'))
+            yTar = float(input('X Target:'))
+            target = [xTar, yTar]
         else:
             target = spot(sheet, stones, lead.color, (2 * i) + 1)  # Computer Decision-Making
-        sheet.shot(shooter, skip, sweep1, sweep2, hammer.color, target[0], target[1])  # Look okay it takes a lot of info
+        sheet.shot(shooter, skip, sweep1, sweep2, hammer.color, target)  # Look okay it takes a lot of info
         if p >= 2:
             sheet.output()  # This is for very close watching
         #print(i+1, 'B')
@@ -127,12 +143,12 @@ def end(hammer, lead, stones, p):  # Hammer Color, Lead Color, Stones per team P
             sweep2 = hammer.Second
         if shooter.controlled:
             sheet.output()
-            cVeloY = float(input('Y Velo:'))
-            cVeloX = float(input('X Velo:'))
-            target = [cVeloY, cVeloX]
+            xTar = float(input('Y Target:'))
+            yTar = float(input('X Target:'))
+            target = [xTar, yTar]
         else:
             target = spot(sheet, stones, lead.color, (2 * i) + 1)
-        sheet.shot(shooter, skip, sweep1, sweep2, hammer.color, target[0], target[1])
+        sheet.shot(shooter, skip, sweep1, sweep2, hammer.color, target)
         if p >= 2:
             sheet.output()
         #print(len(sheet.stones))

@@ -2,6 +2,7 @@ import math  # This file is where the shit gets real
 import numpy
 import random
 import names
+from Spot import targetReq, landing
 
 # Define values here so they can be adjusted everywhere in the code at once
 split = .01  # in seconds, how often the movement updates
@@ -17,17 +18,18 @@ def pythag(x, y):  # It's just nice to have
 
 class Sheet:  # This will store what happens on the sheet in any end
     class Stone:  # I feel like this one is more self-explanatory
-        def __init__(self, color, vY, vX):
+        def __init__(self, color, vY, vX, target):
             self.ID = names.get_first_name('Male') + color
             self.depth = 0  # Depth and Width are now where it is (used to be where it was going)
             self.width = 0
             self.color = color  # 'Blue' or 'Red'
             self.vY = vY
             self.vX = vX
+            self.target = target
             if self.vY:
                 self.angle = math.atan(self.vX / self.vY)  # All angles are with respect to vertical
             else:
-                self.angle = 0
+                self.angle = math.pi/2
             self.dist = pythag(126 - self.depth, self.width)  # Distance from button
             if color == 'Red':  # Gets shown on the output of the sheet
                 self.char = 'r'  # Will get capitalized if it's in the house
@@ -119,19 +121,22 @@ class Sheet:  # This will store what happens on the sheet in any end
                 print(i.color, 'stone at', round(i.depth, 2), 'depth and', round(i.width, 2), 'width for',
                       round(i.dist, 2), 'distance from button.')
 
-    def shot(self, shooter, skip, sweep1, sweep2, color, vY, vX):  # Depth and Width are where it's going not where it is
+    def shot(self, shooter, skip, sweep1, sweep2, color, target):  # Depth and Width are where it's going not where it is
         odds = random.randrange(100)  # Random numer 1-100
         odds2 = random.randrange(100)
-        if odds < 100 * math.log(shooter.xAcc, 10):  # See if they missed in the x-direction
+        V = targetReq(target[0], target[1])
+        vY = V[0]
+        vX = V[1]
+        if odds < .3*((shooter.xAcc - 5)**3) + 50:  # See if they missed in the x-direction
             vX += numpy.random.normal(0, 1)
-        if odds2 < 100 * math.log(shooter.yAcc, 10):  # See if they missed in the y-direction
-            vY += numpy.random.normal(0, 2)
-        rock = self.Stone(color, vY, vX)  # Build the stone, toiling for days mining the mountains of Alisa Craig, Scotland, for only the finest granite. Polishing it until it shines brighter than a city at night. Ship it across the world, into whatever computer this runs on, and get it in position to be shot.
-        #for i in range(10, 90, 20):
-        #    whoop = rock.jump(i)
-        #    if not whoop:
-        #        return
-        #    self.sweepOp(rock, skip, sweep1, sweep2)
+        if odds2 < .3*((shooter.xAcc - 5)**3) + 50:  # See if they missed in the y-direction
+            vY += numpy.random.normal(0, 3)
+        rock = self.Stone(color, vY, vX, target)  # Build the stone, toiling for days mining the mountains of Alisa Craig, Scotland, for only the finest granite. Polishing it until it shines brighter than a city at night. Ship it across the world, into whatever computer this runs on, and get it in position to be shot.
+        for i in range(10, 90, 20):
+            whoop = rock.jump(i)
+            if not whoop:
+                return
+            self.sweepOp(rock, skip, sweep1, sweep2)
         whoop2 = rock.jump(104.5)  # didn't have a good variable name, saves time by skipping up to the hog line
         if not whoop2:
             return
@@ -268,8 +273,7 @@ class Sheet:  # This will store what happens on the sheet in any end
                 #print(i.ID, i.depth, i.width)
                 self.movers.remove(i)
             if i.depth > 135 or i.width < -10 or i.width > 10:  # If it's gone out of bounds
-                if i in self.movers:
-                    self.movers.remove(i)
+                self.movers.remove(i)
                 self.stones.remove(i)
         if len(self.movers) == 0:  # If nothing is still moving
             for i in self.stones:
@@ -286,7 +290,7 @@ class Sheet:  # This will store what happens on the sheet in any end
 
     def score(self):  # Scoring the sheet, called at the end's end
         self.scoreSort(self.stones)  # Get them in order
-        self.stones.append(self.Stone('BLANK', 0, 0))  # Put a blank at the end so the whole thing doesn't fritz out if there are no stones in play
+        self.stones.append(self.Stone('BLANK', 0, 0, [0, 0]))  # Put a blank at the end so the whole thing doesn't fritz out if there are no stones in play
         if self.stones[0].dist <= 6.5:  # If anything is in the house
             lead = self.stones[0]
             leadColor = lead.color  # Which team will get points

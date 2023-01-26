@@ -17,7 +17,7 @@ from League import *
 
 # HERE DOWN IS ACTUAL RUNNING OF THE CODE NOT JUST WRITING FUNCTIONS.
 
-
+playIt()
 #A = Team('Team Blue', 'BLU')
 # A.Skip.controlled = True
 #B = Team('Team Red ', 'RED')
