@@ -1,5 +1,6 @@
 import names
 import random
+from Spot import pythag
 
 
 class Player:  # Just as there are int objects and string objects, we make our own for Players
@@ -48,11 +49,12 @@ class Team:
     def __init__(self, name, ABR):
         self.name = name
         self.ABR = ABR
-        self.Lead = Player(names.get_full_name())  # names is a library of names you can pull from so u dont have to make them up
-        self.Second = Player(names.get_full_name())  # Have plans to reorder these so better players more likely to be skip
-        self.Third = Player(names.get_full_name())
-        self.Skip = Player(names.get_full_name())
-        self.roster = [self.Lead, self.Second, self.Third, self.Skip]
+        self.roster = [Player(names.get_full_name()), Player(names.get_full_name()), Player(names.get_full_name()), Player(names.get_full_name())]
+        self.Lead = None
+        self.Second = None
+        self.Third = None
+        self.Skip = None
+        self.picker()
         self.color = None  # Will be 'Blue' or 'Red' assigned at each game
         # Numbers stuffs
         self.wins = 0
@@ -60,6 +62,44 @@ class Team:
         self.played = 0
         self.pD = 0
         self.tPD = 0
+        self.teamX = 0
+        self.teamY = 0
+        self.teamSweep = 0
+        self.teamSmart = 0
+        for i in self.roster:
+            self.teamX += i.xAcc
+            self.teamY += i.yAcc
+            self.teamSweep += i.sweep
+            self.teamSmart += i.smart
+        self.sStr = str(self.teamX)+' '+str(self.teamY)+' '+str(self.teamSweep)+' '+str(self.teamSmart)
 
     def __str__(self):
         return self.name
+
+    def picker(self):
+        maxSmort = 0
+        indSmort = 0
+        for i in range(4):
+            if self.roster[i].smart > maxSmort:
+                maxSmort = self.roster[i].smart
+                indSmort = i
+        self.Skip = self.roster[indSmort]
+        maxSweep = 0
+        indSweep = 0
+        for i in range(4):
+            if self.roster[i].smart > maxSweep and i != indSmort:
+                maxSweep = self.roster[i].sweep
+                indSweep = i
+        self.Lead = self.roster[indSweep]
+        maxAcc = 0
+        indAcc = 0
+        for i in range(4):
+            if pythag(self.roster[i].xAcc, self.roster[i].yAcc) > maxAcc and i != indSmort and i != indSweep:
+                maxAcc = pythag(self.roster[i].xAcc, self.roster[i].yAcc)
+                indAcc = i
+        self.Third = self.roster[indAcc]
+        for i in range(4):
+            if i != indAcc and i != indSmort and i != indSweep:
+                self.Second = self.roster[i]
+                break
+
