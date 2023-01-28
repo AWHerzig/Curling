@@ -19,6 +19,7 @@ class Sheet:  # This will store what happens on the sheet in any end
             self.color = color  # 'Blue' or 'Red'
             self.vY = vY
             self.vX = vX
+            self.ogV = [vY, vX]
             self.target = target
             if self.vY:
                 self.angle = math.atan(self.vX / self.vY)  # All angles are with respect to vertical
@@ -29,6 +30,19 @@ class Sheet:  # This will store what happens on the sheet in any end
                 self.char = 'r'  # Will get capitalized if it's in the house
             else:
                 self.char = 'b'
+
+        def crossZero(self, dir):
+            if dir == 'Y':
+                if self.ogV[0] > 0 and self.vY < 0:
+                    return True
+                if self.ogV[0] < 0 and self.vY > 0:
+                    return True
+            elif dir == 'X':
+                if self.ogV[1] > 0 and self.vX < 0:
+                    return True
+                if self.ogV[1] < 0 and self.vX > 0:
+                    return True
+            return False
 
         def jump(self, dist):  # Jumps the movement ahead to a certain distance. Used to save processor time pre hog line when you KNOW it wont hit anything
             accelCoef = -gravForce * coefFriction * math.cos(self.angle)  # Acceleration in Y
@@ -122,9 +136,9 @@ class Sheet:  # This will store what happens on the sheet in any end
         vY = V[0]
         vX = V[1]
         if odds < .3*((shooter.xAcc - 5)**3) + 50:  # See if they missed in the x-direction
-            vX += numpy.random.normal(0, 1)
+            vX += numpy.random.normal(0, 3)
         if odds2 < .3*((shooter.xAcc - 5)**3) + 50:  # See if they missed in the y-direction
-            vY += numpy.random.normal(0, 3)
+            vY += numpy.random.normal(0, 6)
         rock = self.Stone(color, vY, vX, target)  # Build the stone, toiling for days mining the mountains of Alisa Craig, Scotland, for only the finest granite. Polishing it until it shines brighter than a city at night. Ship it across the world, into whatever computer this runs on, and get it in position to be shot.
         #for i in range(10, 90, 20):
          #   whoop = rock.jump(i)
@@ -139,8 +153,17 @@ class Sheet:  # This will store what happens on the sheet in any end
         moving = True  # True as long as *something* is moving
         self.stopwatch = 0  # These two have to be reset with each shot
         self.blacklist = []
+        moveCounter = 0
         while moving:  # If everything is still, moving will return as false, and the shot will end.
             moving = self.movement()
+            moveCounter += 1
+            if moveCounter > 0 and moveCounter % 10000 == 0:
+                print(moveCounter)
+                self.summary()
+
+    def summary(self):
+        for i in self.stones:
+            print(i.ID, round(i.depth, 2), round(i.width, 2), round(i.vY, 2), round(i.vX, 2), round(i.angle/math.pi, 2), round(i.ogV[0], 2), round(i.ogV[1], 2))
 
     def sweepOp(self, rock, skip, sweep1, sweep2):  # CURRENTLY NOT IN USE CUZ... I DUNNO BUT ITS BAD
         rando = random.randrange(100)
@@ -169,16 +192,27 @@ class Sheet:  # This will store what happens on the sheet in any end
 
     def movement(self):  # Okay I don't even understand half of this
         for i in self.movers:  # First, we move everything
-            i.depth += (-.5 * decel * math.cos(i.angle) * split) + (split * i.vY)  # change in position
-            i.width += (-.5 * decel * math.sin(i.angle) * split) + (split * i.vX)
-            i.vY -= decel * math.cos(i.angle)  # change in velocity
-            #i.vY = max(i.vY, 0)
-            i.vX -= decel * math.sin(i.angle)
+            if i.vY > 0:
+                i.depth += (-.5 * decel * abs(math.cos(i.angle)) * split) + (split * i.vY)  # change in position
+                i.vY -= decel * abs(math.cos(i.angle))  # change in velocity
+            elif i.vY < 0:
+                i.depth += (.5 * decel * abs(math.cos(i.angle)) * split) + (split * i.vY)  # change in position
+                i.vY += decel * abs(math.cos(i.angle))  # change in velocity
+            if i.vX > 0:
+                i.width += (-.5 * decel * abs(math.sin(i.angle)) * split) + (split * i.vX)
+                i.vX -= decel * abs(math.sin(i.angle))
+            elif i.vX < 0:
+                i.width += (.5 * decel * abs(math.sin(i.angle)) * split) + (split * i.vX)
+                i.vX += decel * abs(math.sin(i.angle))
             #i.vX = max(i.vX, 0)
             #print(i.ID, i.vY, i.vX, i.depth, i.width)
             if -.1 < i.vY < .1:  # I hate floats and everything they stand for, these are trying to nip that in the bud
                 i.vY = 0
             if -.1 < i.vX < .1:
+                i.vX = 0
+            if i.crossZero('Y'):
+                i.vY = 0
+            if i.crossZero('X'):
                 i.vX = 0
         self.stopwatch += split  # Timer increment
         for i in self.movers:  # Second, check for collisions
@@ -230,6 +264,9 @@ class Sheet:  # This will store what happens on the sheet in any end
                             t6 = (vTy*i.vY) + (vTy*j.vX*t1) - (t3**2) - t2  # I know I know
                             if 4 * t4 * t6 > t5 ** 2:  # I think I fixed all of these but its here for debugs
                                 print('stahp')
+                            poss1 = (-t5 - math.sqrt((t5 ** 2) - (4 * t4 * t6))) / (2 * t4)
+                            poss2 = (-t5 + math.sqrt((t5 ** 2) - (4 * t4 * t6))) / (2 * t4)
+                            print('LOOK HERE:', round(poss1, 2), round(poss2, 2))
                             vx1j = (-t5 - math.sqrt((t5 ** 2) - (4 * t4 * t6))) / (2 * t4)  # This is plus or minus so... i dunno
                             # TRUST ME BRO
                             if abs(vx1j) < .1:  # I don't even know if this is still necessary
@@ -250,6 +287,8 @@ class Sheet:  # This will store what happens on the sheet in any end
                         j.vY = vy1j
                         i.vX = vx1i
                         j.vX = vx1j
+                        i.ogV = [i.vY, i.vX]
+                        j.ogX = [j.vY, j.vX]
                         if i.vY:
                             i.angle = math.atan(i.vX/i.vY)
                         else:

@@ -4,10 +4,11 @@ class Linked_List:
     
     class __Node:
         
-        def __init__(self, val):
+        def __init__(self, val, marker=False):
             # Declare and initialize the public attributes for objects of the
             # Node class. TODO replace pass with your implementation
             self.get_value=val
+            self.marker = marker
             self.next=None
             self.prev=None
 
@@ -30,11 +31,11 @@ class Linked_List:
         return self.__size
         
 
-    def append_element(self, val):
+    def append_element(self, val, marker=False):
         # Increase the size of the list by one, and add a node containing val at
         # the new tail position. this is the only way to add items at the tail
         # position. TODO replace pass with your implementation
-        new=self.__Node(val)
+        new=self.__Node(val, marker)
         self.__trailer.prev.next=new
         new.prev=self.__trailer.prev
         self.__trailer.prev=new
@@ -101,13 +102,17 @@ class Linked_List:
         else:
             stuff=''
             for item in self:
-                stuff=stuff+'|'+str(item)
+                if item.marker:
+                    addOn = '0'
+                else:
+                    addOn = ''
+                stuff=stuff+'|'+addOn+str(item.get_value)
             return stuff
 
     def sum(self):
         total = 0
         for i in self:
-            total += i
+            total += i.get_value
         return total
 
 
@@ -118,7 +123,7 @@ class Linked_List:
     def __next__(self):
         if self.__iter==self.__trailer:
             raise StopIteration
-        to_return=self.__iter.get_value
+        to_return=self.__iter
         self.__iter=self.__iter.next
         return to_return
         

@@ -25,24 +25,27 @@ def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, 
     aScore = Linked_List()
     endCount = Linked_List()
     endNum = 1
+    extraSpace = False
     while endNum <= ends or hScore.sum() == aScore.sum():  # If still tied, go to extra ends.
-        endCount.append_element(endNum)  # adds column to scoreboard
+        if endNum >= 10:
+            extraSpace = True
+        endCount.append_element(endNum, False)  # adds column to scoreboard
         if p > 1:
             print('END', endNum)
         res = end(hammer, lead, stones, p)  # The end is actually played with this function call.
         if res[0] == 'Blue':  # If Blue Scored
-            hScore.append_element(res[1])
-            aScore.append_element(0)
+            hScore.append_element(res[1], extraSpace)
+            aScore.append_element(0, extraSpace)
             hammer = a
             lead = h
         elif res[0] == 'Red':  # If Red Scored
-            aScore.append_element(res[1])
-            hScore.append_element(0)
+            aScore.append_element(res[1], extraSpace)
+            hScore.append_element(0, extraSpace)
             hammer = h
             lead = a
         else:  # Blank End
-            hScore.append_element(0)
-            aScore.append_element(0)
+            hScore.append_element(0, extraSpace)
+            aScore.append_element(0, extraSpace)
         endNum += 1
     endCount.append_element('T')
     hFinal = hScore.sum()
@@ -54,8 +57,8 @@ def game(h, a, ends=10, stones=8, p=.5, playoff=False, neutral=False):  # Home, 
         print('Team Name    '+str(endCount))
         print(h.name, hScore)
         print(a.name, aScore)
-    if p > 0 < 1:
-        print(h.ABR, hFinal, aFinal, a.ABR)
+    if 0 < p < 1:
+        print(h.ABR, hFinal, aFinal, a.ABR, 'in', endNum-1, 'ends.')
     if playoff:
         if hFinal > aFinal:
             return h
